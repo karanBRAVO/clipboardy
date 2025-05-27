@@ -25,25 +25,25 @@ typedef size_t format;
 #if CLIP_ENABLE_IMAGE
 class image;
 struct image_spec;
-#endif // CLIP_ENABLE_IMAGE
+#endif  // CLIP_ENABLE_IMAGE
 
 #if CLIP_ENABLE_LIST_FORMATS
 struct format_info {
   format id = 0;
   std::string name;
-  format_info(const format id, const std::string &name) : id(id), name(name) {}
+  format_info(const format id, const std::string& name) : id(id), name(name) {}
 };
-#endif // CLIP_ENABLE_LIST_FORMATS
+#endif  // CLIP_ENABLE_LIST_FORMATS
 
 class lock {
-public:
+ public:
   // You can give your current HWND as the "native_window_handle."
   // Windows clipboard functions use this handle to open/close
   // (lock/unlock) the clipboard. From the MSDN documentation we
   // need this handler so SetClipboardData() doesn't fail after a
   // EmptyClipboard() call. Anyway it looks to work just fine if we
   // call OpenClipboard() with a null HWND.
-  lock(void *native_window_handle = nullptr);
+  lock(void* native_window_handle = nullptr);
   ~lock();
 
   // Returns true if we've locked the clipboard successfully in
@@ -58,29 +58,29 @@ public:
   // Returns true if the clipboard can be converted to the given
   // format.
   bool is_convertible(format f) const;
-  bool set_data(format f, const char *buf, size_t len);
-  bool get_data(format f, char *buf, size_t len) const;
+  bool set_data(format f, const char* buf, size_t len);
+  bool get_data(format f, char* buf, size_t len) const;
   size_t get_data_length(format f) const;
 
 #if CLIP_ENABLE_IMAGE
   // For images
-  bool set_image(const image &image);
-  bool get_image(image &image) const;
-  bool get_image_spec(image_spec &spec) const;
-#endif // CLIP_ENABLE_IMAGE
+  bool set_image(const image& image);
+  bool get_image(image& image) const;
+  bool get_image_spec(image_spec& spec) const;
+#endif  // CLIP_ENABLE_IMAGE
 
 #if CLIP_ENABLE_LIST_FORMATS
   // Returns the list of available formats (by name) in the
   // clipboard.
   std::vector<format_info> list_formats() const;
-#endif // CLIP_ENABLE_LIST_FORMATS
+#endif  // CLIP_ENABLE_LIST_FORMATS
 
-private:
+ private:
   class impl;
   std::unique_ptr<impl> p;
 };
 
-format register_format(const std::string &name);
+format register_format(const std::string& name);
 
 // This format is when the clipboard has no content.
 format empty_format();
@@ -121,8 +121,8 @@ error_handler get_error_handler();
 
 // High-level API to put/get UTF8 text in/from the clipboard. These
 // functions returns false in case of error.
-bool set_text(const std::string &value);
-bool get_text(std::string &value);
+bool set_text(const std::string& value);
+bool get_text(std::string& value);
 
 // ======================================================================
 // Image
@@ -158,39 +158,39 @@ struct image_spec {
 // no conversion at all. Linux/X11 images are transferred in
 // image/png format which are specified in straight alpha.
 class image {
-public:
+ public:
   image();
-  image(const image_spec &spec);
-  image(const void *data, const image_spec &spec);
-  image(const image &image);
-  image(image &&image);
+  image(const image_spec& spec);
+  image(const void* data, const image_spec& spec);
+  image(const image& image);
+  image(image&& image);
   ~image();
 
-  image &operator=(const image &image);
-  image &operator=(image &&image);
+  image& operator=(const image& image);
+  image& operator=(image&& image);
 
-  char *data() const { return m_data; }
-  const image_spec &spec() const { return m_spec; }
+  char* data() const { return m_data; }
+  const image_spec& spec() const { return m_spec; }
 
   bool is_valid() const { return m_data != nullptr; }
   void reset();
 
-private:
-  void copy_image(const image &image);
-  void move_image(image &&image);
+ private:
+  void copy_image(const image& image);
+  void move_image(image&& image);
 
   bool m_own_data;
-  char *m_data;
+  char* m_data;
   image_spec m_spec;
 };
 
 // High-level API to set/get an image in/from the clipboard. These
 // functions returns false in case of error.
-bool set_image(const image &img);
-bool get_image(image &img);
-bool get_image_spec(image_spec &spec);
+bool set_image(const image& img);
+bool get_image(image& img);
+bool get_image_spec(image_spec& spec);
 
-#endif // CLIP_ENABLE_IMAGE
+#endif  // CLIP_ENABLE_IMAGE
 
 // ======================================================================
 // Platform-specific
@@ -202,6 +202,6 @@ bool get_image_spec(image_spec &spec);
 void set_x11_wait_timeout(int msecs);
 int get_x11_wait_timeout();
 
-} // namespace clip
+}  // namespace clip
 
-#endif // CLIP_H_INCLUDED
+#endif  // CLIP_H_INCLUDED

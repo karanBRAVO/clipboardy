@@ -1,6 +1,6 @@
 #include "websocket_client.hpp"
 
-WebSocketClient::WebSocketClient(net::io_context &ioc)
+WebSocketClient::WebSocketClient(net::io_context& ioc)
     : resolver_(net::make_strand(ioc)), ws_(net::make_strand(ioc)) {}
 
 WebSocketClient::~WebSocketClient() {
@@ -13,7 +13,7 @@ WebSocketClient::~WebSocketClient() {
   }
 }
 
-void WebSocketClient::connect(char const *host, char const *port) {
+void WebSocketClient::connect(char const* host, char const* port) {
   std::cout << "Connecting to " << host << ":" << port << std::endl;
 
   host_ = host;
@@ -21,13 +21,10 @@ void WebSocketClient::connect(char const *host, char const *port) {
 
   // Look up the domain name
   resolver_.async_resolve(
-      host, port,
-      beast::bind_front_handler(&WebSocketClient::on_resolve_,
-                                shared_from_this()));
+      host, port, beast::bind_front_handler(&WebSocketClient::on_resolve_, shared_from_this()));
 }
 
-void WebSocketClient::on_resolve_(error_code ec,
-                                  tcp::resolver::results_type results) {
+void WebSocketClient::on_resolve_(error_code ec, tcp::resolver::results_type results) {
   if (ec) {
     std::cerr << "Resolve error: " << ec.message() << std::endl;
     return;
@@ -38,12 +35,10 @@ void WebSocketClient::on_resolve_(error_code ec,
 
   // Make the connection on the IP address we get from a lookup
   beast::get_lowest_layer(ws_).async_connect(
-      results, beast::bind_front_handler(&WebSocketClient::on_connect_,
-                                         shared_from_this()));
+      results, beast::bind_front_handler(&WebSocketClient::on_connect_, shared_from_this()));
 }
 
-void WebSocketClient::on_connect_(
-    error_code ec, tcp::resolver::results_type::endpoint_type ep) {
+void WebSocketClient::on_connect_(error_code ec, tcp::resolver::results_type::endpoint_type ep) {
   if (ec) {
     std::cerr << "Connect error: " << ec.message() << std::endl;
     return;
@@ -54,23 +49,19 @@ void WebSocketClient::on_connect_(
   beast::get_lowest_layer(ws_).expires_never();
 
   // Set suggested timeout settings for the websocket
-  ws_.set_option(
-      websocket::stream_base::timeout::suggested(beast::role_type::client));
+  ws_.set_option(websocket::stream_base::timeout::suggested(beast::role_type::client));
 
   // Set a decorator to change the User-Agent of the handshake
-  ws_.set_option(
-      websocket::stream_base::decorator([](websocket::request_type &req) {
-        req.set(http::field::user_agent,
-                std::string(BOOST_BEAST_VERSION_STRING) +
-                    " websocket-client-async");
-      }));
+  ws_.set_option(websocket::stream_base::decorator([](websocket::request_type& req) {
+    req.set(http::field::user_agent,
+            std::string(BOOST_BEAST_VERSION_STRING) + " websocket-client-async");
+  }));
 
   host_ += ':' + std::to_string(ep.port());
 
   // Perform the websocket handshake
-  ws_.async_handshake(host_, "/",
-                      beast::bind_front_handler(&WebSocketClient::on_handshake_,
-                                                shared_from_this()));
+  ws_.async_handshake(
+      host_, "/", beast::bind_front_handler(&WebSocketClient::on_handshake_, shared_from_this()));
 }
 
 void WebSocketClient::on_handshake_(error_code ec) {
@@ -90,12 +81,10 @@ void WebSocketClient::on_handshake_(error_code ec) {
 }
 
 void WebSocketClient::close() {
-  if (!ws_.is_open())
-    return;
+  if (!ws_.is_open()) return;
 
   ws_.async_close(websocket::close_code::normal,
-                  beast::bind_front_handler(&WebSocketClient::on_close_,
-                                            shared_from_this()));
+                  beast::bind_front_handler(&WebSocketClient::on_close_, shared_from_this()));
 }
 
 void WebSocketClient::on_close_(error_code ec) {
@@ -113,13 +102,11 @@ void WebSocketClient::on_close_(error_code ec) {
   }
 }
 
-void WebSocketClient::send_message(const std::string &message) {
-  if (!ws_.is_open())
-    return;
+void WebSocketClient::send_message(const std::string& message) {
+  if (!ws_.is_open()) return;
 
   ws_.async_write(net::buffer(message),
-                  beast::bind_front_handler(&WebSocketClient::on_write_,
-                                            shared_from_this()));
+                  beast::bind_front_handler(&WebSocketClient::on_write_, shared_from_this()));
 }
 
 void WebSocketClient::on_write_(error_code ec, std::size_t bytes_transferred) {
@@ -137,11 +124,10 @@ void WebSocketClient::on_write_(error_code ec, std::size_t bytes_transferred) {
 }
 
 void WebSocketClient::read_() {
-  if (!ws_.is_open())
-    return;
+  if (!ws_.is_open()) return;
 
-  ws_.async_read(buffer_, beast::bind_front_handler(&WebSocketClient::on_read_,
-                                                    shared_from_this()));
+  ws_.async_read(buffer_,
+                 beast::bind_front_handler(&WebSocketClient::on_read_, shared_from_this()));
 }
 
 void WebSocketClient::on_read_(error_code ec, std::size_t bytes_transferred) {
@@ -183,8 +169,7 @@ void WebSocketClient::on_disconnect(std::function<void()> cb) {
   on_disconnect_cb_ = std::move(cb);
 }
 
-void WebSocketClient::on_error(
-    std::function<void(const std::string &error)> cb) {
+void WebSocketClient::on_error(std::function<void(const std::string& error)> cb) {
   on_error_cb_ = std::move(cb);
 }
 
@@ -192,6 +177,6 @@ void WebSocketClient::on_write(std::function<void()> cb) {
   on_write_cb_ = std::move(cb);
 }
 
-void WebSocketClient::on_message(std::function<void(const std::string &)> cb) {
+void WebSocketClient::on_message(std::function<void(const std::string&)> cb) {
   on_message_cb_ = std::move(cb);
 }

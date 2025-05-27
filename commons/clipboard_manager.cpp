@@ -1,6 +1,8 @@
 #include "clipboard_manager.hpp"
 
-ClipboardManager::~ClipboardManager() { stop(); }
+ClipboardManager::~ClipboardManager() {
+  stop();
+}
 
 std::string ClipboardManager::get_text() const {
   std::string str;
@@ -10,9 +12,11 @@ std::string ClipboardManager::get_text() const {
   return str;
 }
 
-void ClipboardManager::set_text(const std::string &str) { clip::set_text(str); }
+void ClipboardManager::set_text(const std::string& str) {
+  clip::set_text(str);
+}
 
-void ClipboardManager::poll(std::function<void(const std::string &)> cb) {
+void ClipboardManager::poll(std::function<void(const std::string&)> cb) {
   std::thread([this, cb]() {
     while (running_) {
       std::string clipboard_content = get_text();
@@ -28,4 +32,6 @@ void ClipboardManager::poll(std::function<void(const std::string &)> cb) {
   }).detach();
 }
 
-void ClipboardManager::stop() { running_ = false; }
+void ClipboardManager::stop() {
+  running_ = false;
+}

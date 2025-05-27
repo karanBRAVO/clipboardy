@@ -15,14 +15,13 @@ namespace details {
 
 #if CLIP_ENABLE_IMAGE
 
-inline void divide_rgb_by_alpha(image &img,
-                                bool hasAlphaGreaterThanZero = false) {
-  const image_spec &spec = img.spec();
+inline void divide_rgb_by_alpha(image& img, bool hasAlphaGreaterThanZero = false) {
+  const image_spec& spec = img.spec();
 
   bool hasValidPremultipliedAlpha = true;
 
   for (unsigned long y = 0; y < spec.height; ++y) {
-    const uint32_t *dst = (uint32_t *)(img.data() + y * spec.bytes_per_row);
+    const uint32_t* dst = (uint32_t*)(img.data() + y * spec.bytes_per_row);
     for (unsigned long x = 0; x < spec.width; ++x, ++dst) {
       const uint32_t c = *dst;
       const int r = ((c & spec.red_mask) >> spec.red_shift);
@@ -30,15 +29,13 @@ inline void divide_rgb_by_alpha(image &img,
       const int b = ((c & spec.blue_mask) >> spec.blue_shift);
       const int a = ((c & spec.alpha_mask) >> spec.alpha_shift);
 
-      if (a > 0)
-        hasAlphaGreaterThanZero = true;
-      if (r > a || g > a || b > a)
-        hasValidPremultipliedAlpha = false;
+      if (a > 0) hasAlphaGreaterThanZero = true;
+      if (r > a || g > a || b > a) hasValidPremultipliedAlpha = false;
     }
   }
 
   for (unsigned long y = 0; y < spec.height; ++y) {
-    uint32_t *dst = (uint32_t *)(img.data() + y * spec.bytes_per_row);
+    uint32_t* dst = (uint32_t*)(img.data() + y * spec.bytes_per_row);
     for (unsigned long x = 0; x < spec.width; ++x, ++dst) {
       const uint32_t c = *dst;
       int r = ((c & spec.red_mask) >> spec.red_shift);
@@ -65,15 +62,15 @@ inline void divide_rgb_by_alpha(image &img,
         }
       }
 
-      *dst = (r << spec.red_shift) | (g << spec.green_shift) |
-             (b << spec.blue_shift) | (a << spec.alpha_shift);
+      *dst = (r << spec.red_shift) | (g << spec.green_shift) | (b << spec.blue_shift) |
+             (a << spec.alpha_shift);
     }
   }
 }
 
-#endif // CLIP_ENABLE_IMAGE
+#endif  // CLIP_ENABLE_IMAGE
 
-} // namespace details
-} // namespace clip
+}  // namespace details
+}  // namespace clip
 
-#endif // CLIP_H_INCLUDED
+#endif  // CLIP_H_INCLUDED
