@@ -28,8 +28,14 @@ sudo apt install build-essential cmake libboost-all-dev
 ```bash
 export BOOST_ROOT=/path/to/boost/dir
 mkdir -p build && cd build/
-cmake ..
-cmake --build .
+
+# Build server
+cmake -B build-server -DBUILD_SERVER=ON
+cmake --build build-server
+
+# Build client
+cmake -B build-client -DBUILD_CLIENT=ON
+cmake --build build-client
 ```
 
 ## Contributing
